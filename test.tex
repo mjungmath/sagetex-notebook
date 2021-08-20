@@ -1,17 +1,19 @@
 \documentclass[12pt]{article}
 \usepackage{lipsum}
+\usepackage{amsmath}
+\usepackage{amsfonts}
 
 \usepackage{sagetex}
 
 \renewcommand{\sagecommandlinetextoutput}{False}
-
 \begin{document}
 
 \lipsum[2-3]
 \begin{sagenotebook}
 sage: M = Manifold(2, 'M')
 sage: X.<x,y> = M.chart()
-sage: X
+sage: f = M.scalar_field(x^2, name='f')
+sage: f.display()
 \end{sagenotebook}
 \lipsum[1]
 

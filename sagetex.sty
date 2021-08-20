@@ -48,7 +48,6 @@
 %% MY CHANGES
 
 \RequirePackage[many,breakable]{tcolorbox}
-\tcbset{nobeforeafter}
 
 \newcommand{\prompt}[3]{%
 	\llap{\texttt{\color{#1}[#2]:#3}}\vspace{-\baselineskip}%
@@ -89,6 +88,7 @@
 	size=fbox, 
 	pad at break*=1mm,
 	opacityfill=0,
+	before skip=-\baselineskip,
 	title=\prompt{outcolor}{\theNBin}{\hspace{5.5pt}},
 	fonttitle=\linespread{1}\small,
 	attach title to upper,
@@ -101,7 +101,9 @@
 	boxrule=.5pt,
 	size=fbox, 
 	pad at break*=1mm, 
+	top=2pt,
 	opacityfill=0,
+	before skip=-\baselineskip,
 	title=\prompt{outcolor}{\theNBin}{\hspace{5.5pt}},
 	fonttitle=\linespread{1}\small,
 	after={\par\noindent},
@@ -113,8 +115,7 @@
 	tabsize=4,
 	basicstyle=\linespread{1}\small\ttfamily,
 	basewidth=.5em,
-	aboveskip=0pt,
-	belowskip=-2pt,
+	aboveskip=0pt
 }
 
 \lstdefinestyle{SageNotebookIn}{
@@ -126,7 +127,6 @@
 	stringstyle=\color{stringcol},
 	basicstyle=\linespread{1}\small\ttfamily,
 	basewidth=.5em,
-	aboveskip=0pt,
 	belowskip=-2pt,
 	showstringspaces=false,
 	breaklines=true,
@@ -141,6 +141,8 @@
 
 \lstdefinestyle{SageNotebookOut}{
 	style=SageNotebook,
+	aboveskip=0pt,
+    belowskip=0pt,
 }
 
 \definecolor{dbluecolor}{rgb}{0.01,0.02,0.7}

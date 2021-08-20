@@ -1,0 +1,56 @@
+\documentclass[12pt]{article}
+\usepackage[many,breakable]{tcolorbox}
+\tcbset{nobeforeafter}
+\usepackage{fancyvrb}
+\usepackage{lipsum}
+
+\newlength{\promptwidth}
+\setlength{\promptwidth}{0pt}
+
+\newcommand{\prompt}[4]{%
+	\llap{\texttt{\color{#2}#1[#3]:#4}}%
+}
+
+% Python highlighting colors
+\definecolor{keywordcol}{HTML}{3a821d}
+\definecolor{stringcol}{HTML}{a03626}
+\definecolor{commentcol}{HTML}{477998}
+
+% Exact colors from NB
+\definecolor{incolor}{HTML}{234c66}
+\definecolor{outcolor}{HTML}{b73e2c}
+\colorlet{finalincolor}{incolor!70!white}
+\colorlet{finaloutcolor}{outcolor!70!white}
+\definecolor{cellborder}{HTML}{CFCFCF}
+\definecolor{cellbackground}{HTML}{F7F7F7}
+
+\newcounter{NBin}
+\newtcolorbox{NBin}{%
+	breakable,
+	enhanced,
+	size=fbox, 
+	pad at break*=1mm,
+	opacityfill=1,
+	left skip = \promptwidth,
+	boxrule=.7pt,
+	before skip=\medskipamount,
+	after={\par\noindent},
+	colback=cellbackground,
+	colframe=cellborder,
+	phantom=\refstepcounter{NBin}\label{in:\theNBin},
+	title=\prompt{}{finalincolor}{\theNBin}{\hspace{6pt}},
+	fonttitle=\linespread{1}\small,
+	attach title to upper,
+}
+
+\usepackage{sagetex}
+
+\begin{document}
+
+\lipsum
+\begin{sagenotebook}
+sage: print('test')
+sage: print('another')
+\end{sagenotebook}
+
+\end{document}

@@ -1,31 +1,5 @@
-##
-## This is file `sagetex.py',
-## generated with the docstrip utility.
-##
-## The original source files were:
-##
-## sagetex.dtx  (with options: `python')
-## py-and-sty.dtx  (with options: `python')
-## 
-## This is a generated file. It is part of the SageTeX package.
-## 
-## Copyright (C) 2008--2015 by Dan Drake <dr.dan.drake@gmail.com>
-## 
-## This program is free software: you can redistribute it and/or modify it
-## under the terms of the GNU General Public License as published by the
-## Free Software Foundation, either version 2 of the License, or (at your
-## option) any later version.
-## 
-## This program is distributed in the hope that it will be useful, but
-## WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
-## Public License for more details.
-## 
-## You should have received a copy of the GNU General Public License along
-## with this program.  If not, see <http://www.gnu.org/licenses/>.
-## 
 __version__ = """
-  [2020/08/12 v3.5 embedding Sage into LaTeX documents]
+  [2021/08/20 v3.6a alternative version supporting notebook]
 """.strip()
 pyversion = ' '.join(__version__.strip('[').split()[0:2])
 from sage.misc.latex import latex
@@ -94,7 +68,10 @@ http://doc.sagemath.org/html/en/tutorial/sagetex.html.""".format(jobname,
     self.souttmp.write(autogenstr)
     self.scmdtmp = open(self.filename + '.sagetex.scmd.tmp', 'w')
     self.scmdtmp.write(autogenstr)
+    self.nbcmdtmp = open(self.filename + '.sagetex.nbcmd.tmp', 'w')
+    self.nbcmdtmp.write(autogenstr)
     self.scmdpos = 3
+    self.nbcmdpos = 3
   def progress(self, t,linebreak=True):
     if linebreak:
       print(t)
@@ -114,12 +91,18 @@ http://doc.sagemath.org/html/en/tutorial/sagetex.html.""".format(jobname,
           self.max_counter_seen.increment(labelname)
       if labelname == 'sageinline':
           self.progress('Inline formula {0} (line {1})'.format(counter, self.current_tex_line))
-      elif labelname in ['sagecmdline', 'sagejupyter']:
+      elif labelname in ['sagecmdline', 'sagenotebook']:
           pass # output message already printed
       else:
           raise ValueError('inline() got a bad labelname "{0}"'.format(labelname))
       self.souttmp.write(r'\newlabel{@' + labelname + str(counter) +
                          '}{{%\n' + s.rstrip() + '}{}{}{}{}}\n')
+  def savenbcmd(self, s):
+      self.nbcmdtmp.write(s.rstrip() + "\n")
+      begin = self.nbcmdpos
+      end = begin + len(s.splitlines()) - 1
+      self.nbcmdpos = end + 1
+      return begin, end
   def savecmd(self, s):
       self.scmdtmp.write(s.rstrip() + "\n")
       begin = self.scmdpos
@@ -182,42 +165,12 @@ SAGE_ROOT/local/share/doc/sagetex.""")
               result = eval(preparse(splitup[i][2]), globals, locals)
               tex_strs += [r'\abovedisplayskip=0pt plus 3pt ',
                            r'\abovedisplayshortskip=0pt plus 3pt ',
-                           r'$' + latex(result) + '$']
+                           r'\begin{displaymath}',
+                           latex(result),
+                           r' \end{displaymath}']
           except SyntaxError:
               exec(preparse(splitup[i][2]), globals, locals)
       self.inline(counter, '\n'.join(tex_strs))
-  def jupyter(self, counter, s, globals, locals, text_output):
-      self.progress('Sage commandline {0} (line {1})'.format(counter, self.current_tex_line))
-      scmd_fn = self.name + '.sagetex.scmd'
-      if ' ' in scmd_fn:
-          scmd_fn = '"{}"'.format(scmd_fn)
-
-      splitup = self.split_sage_cmds(s)
-      skip = r'\vspace{\sagecommandlineskip}'
-      tex_strs = [skip]
-      lstinput = r'\lstinputlisting[firstline={0},lastline={1},firstnumber={2},style=SageInput{escape}]{{{3}}}'
-      for i in range(len(splitup)):
-          orig_input = s[splitup[i][0]:splitup[i][1]]
-          begin, end = self.savecmd(strip_common_leading_spaces(orig_input.strip('\n')))
-          if '#@' in orig_input:
-              escapeoption = ',escapeinside={\\#@}{\\^^M}'
-          else:
-              escapeoption = ''
-          tex_strs.append(r'\begin{NBin}')
-          tex_strs.append(lstinput.format(begin, end, begin - 2, scmd_fn, escape=escapeoption))
-          tex_strs.append(r'\end{NBin}')
-          try:
-              result = eval(preparse(splitup[i][2]), globals, locals)
-              if text_output:
-                  begin, end = self.savecmd(str(result))
-                  tex_strs.append(lstinput.format(begin, end, begin - 2, scmd_fn, escape=''))
-              else:
-                  tex_strs.append(r'$' + latex(result) + r'$')
-          except SyntaxError:
-              exec(preparse(splitup[i][2]), globals, locals)
-      if '$' not in tex_strs[-1]:
-          tex_strs.append(skip)
-      self.inline(counter, '\n'.join(tex_strs), labelname='sagejupyter')
   def commandline(self, counter, s, globals, locals, text_output):
       self.progress('Sage commandline {0} (line {1})'.format(counter, self.current_tex_line))
       scmd_fn = self.name + '.sagetex.scmd'
@@ -295,6 +248,8 @@ SAGE_ROOT/local/share/doc/sagetex.""")
     os.remove(self.filename + '.sagetex.sout.tmp')
     self.scmdtmp.close()
     os.remove(self.filename + '.sagetex.scmd.tmp')
+    self.nbcmdtmp.close()
+    os.remove(self.filename + '.sagetex.nbcmd.tmp')
     sys.exit(int(1))
   def endofdoc(self):
     sagef = open(self.filename + '.sagetex.sage', 'r')
@@ -312,10 +267,51 @@ SAGE_ROOT/local/share/doc/sagetex.""")
  (minus "goboom", "current_tex_line", and pause/unpause lines)\n'
     self.souttmp.write(s)
     self.scmdtmp.write(s)
+    self.nbcmdtmp.write(s)
     self.souttmp.close()
     os.rename(self.filename + '.sagetex.sout.tmp', self.filename + '.sagetex.sout')
     self.scmdtmp.close()
     os.rename(self.filename + '.sagetex.scmd.tmp', self.filename + '.sagetex.scmd')
+    self.nbcmdtmp.close()
+    os.rename(self.filename + '.sagetex.nbcmd.tmp', self.filename + '.sagetex.nbcmd')
     self.progress('Sage processing complete. Run LaTeX on {0}.tex again.'.format(
              self.filename))
+  # MY CHANGES
+  def notebook(self, counter, s, globals, locals, text_output):
+      self.progress('Sage commandline {0} (line {1})'.format(counter, self.current_tex_line))
+      scmd_fn = self.name + '.sagetex.nbcmd'
+      if ' ' in scmd_fn:
+          scmd_fn = '"{}"'.format(scmd_fn)
 
+      splitup = self.split_sage_cmds(s)
+      tex_strs = [r'\begin{NBin}']
+      lstinput = r'\lstinputlisting[firstline={0},lastline={1},firstnumber={2},style=SageNotebookIn{escape}]{{{3}}}'
+      lstoutput = r'\lstinputlisting[firstline={0},lastline={1},firstnumber={2},style=SageNotebookOut{escape}]{{{3}}}'
+      for i in range(len(splitup)):
+          output = splitup[i][2]
+          begin, end = self.savenbcmd(strip_common_leading_spaces(output.strip('\n')))
+          if '#@' in output:
+              escapeoption = ',escapeinside={\\#@}{\\^^M}'
+          else:
+              escapeoption = ''
+          tex_strs.append(lstinput.format(begin, end, begin - 2, scmd_fn, escape=escapeoption))
+          result = None
+          try:
+              result = eval(preparse(splitup[i][2]), globals, locals)
+          except SyntaxError:
+              exec(preparse(output), globals, locals)
+          if result:
+              if text_output:
+                  begin, end = self.savenbcmd(str(result))
+                  tex_strs.append(r'\end{NBin}')
+                  tex_strs.append(r'\begin{NBout}')
+                  tex_strs.append(lstoutput.format(begin, end, begin - 2, scmd_fn, escape=''))
+                  tex_strs.append(r'\end{NBout}')
+              else:
+                  tex_strs.append(r'\end{NBin}')
+                  tex_strs.append(r'\begin{NBoutM}')
+                  tex_strs.append(r'$' + latex(result) + r'$')
+                  tex_strs.append(r'\end{NBoutM}')
+          elif i == len(splitup) - 1:
+              tex_strs.append(r'\end{NBin}')
+      self.inline(counter, '\n'.join(tex_strs), labelname='sagenotebook')

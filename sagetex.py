@@ -96,7 +96,7 @@ http://doc.sagemath.org/html/en/tutorial/sagetex.html.""".format(jobname,
       else:
           raise ValueError('inline() got a bad labelname "{0}"'.format(labelname))
       self.souttmp.write(r'\newlabel{@' + labelname + str(counter) +
-                         '}{{%\n' + s.rstrip() + '}{}{}{}{}}\n')
+                         '}{{%\n' + s.rstrip() + '}}\n')
   def savenbcmd(self, s):
       self.nbcmdtmp.write(s.rstrip() + "\n")
       begin = self.nbcmdpos

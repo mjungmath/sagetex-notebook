@@ -15,7 +15,6 @@ sage: X.<x,y> = M.chart()
 sage: f = M.scalar_field(x^2, name='f')
 sage: f.display()
 \end{sagenotebook}
-\par
 \begin{sagenotebook}
 sage: TM = M.tangent_bundle()
 sage: TM
@@ -24,7 +23,16 @@ sage: TM
 sage: from sage.categories.manifolds import Manifolds
 sage: M in Manifolds(RR)
 \end{sagenotebook}
-\lipsum
+\begin{sagenotebook}
+	sage: from sage.categories.manifolds import Manifolds
+	sage: M in Manifolds(RR)
+\end{sagenotebook}
+\lipsum[1]
+\begin{sagenotebook}
+	sage: from sage.categories.manifolds import Manifolds
+	sage: M in Manifolds(RR)
+\end{sagenotebook}
+\lipsum[7]
 \begin{sagenotebook}
 sage: n = 4
 sage: m = 5

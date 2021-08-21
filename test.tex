@@ -3,7 +3,7 @@
 \usepackage{amsmath}
 \usepackage{amsfonts}
 
-\usepackage{sagetex}
+\usepackage{my_sagetex}
 
 \renewcommand{\sagecommandlinetextoutput}{False}
 \begin{document}
@@ -30,6 +30,7 @@ sage: M in Manifolds(RR)
 \lipsum[1]
 \begin{sagenotebook}
 	sage: from sage.categories.manifolds import Manifolds
+
 	sage: M in Manifolds(RR)
 \end{sagenotebook}
 \lipsum[7]

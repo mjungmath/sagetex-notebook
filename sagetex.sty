@@ -47,10 +47,10 @@
 
 %% MY CHANGES
 
-\RequirePackage[many,breakable]{tcolorbox}
+\RequirePackage[many,breakable,listings,minted]{tcolorbox}
 
 \newcommand{\prompt}[3]{%
-	\llap{\texttt{\color{#1}[#2]:#3}}\vspace{-\baselineskip}%
+	\llap{\texttt{\color{#1}[#2]:\:}}%
 }
 
 % Exact colors from NB
@@ -65,84 +65,66 @@
 \definecolor{commentcol}{HTML}{477998}
 
 \newcounter{NBin}
-\newtcolorbox{NBin}{%
+
+\newtcbinputlisting{\NBinput}[4]{
 	breakable,
 	enhanced,
+	minted language=python,
 	size=fbox, 
+	boxrule=1pt, 
 	pad at break*=1mm,
-	boxrule=.7pt,
 	before skip=\medskipamount,
-	after={\par\noindent},
-	colback=cellbackground,
+	colback=cellbackground, 
 	colframe=cellborder,
-	phantom=\refstepcounter{NBin}\label{NBin:\theNBin},
-	title=\prompt{incolor}{\theNBin}{\hspace{6pt}},
-	fonttitle=\linespread{1}\small,
-	attach title to upper,
+	phantom=\refstepcounter{NBin}\label{in:\theNBin},
+	detach title,
+    overlay unbroken and first={%
+		\node[anchor=north] at (frame.north west) {\tcbtitle};
+	},
+	title=\prompt{incolor}{\theNBin},
+	listing file={#1},
+	listing only,
+	minted options app={
+		firstline=#2,
+		lastline=#3,
+		#4,
+	},
 }
 
-\newtcolorbox{NBout}{
+\newtcbinputlisting{\NBoutput}[4]{
 	breakable,
 	enhanced,
-	boxrule=.5pt, 
-	size=fbox, 
+	minted language=text,
+	size=fbox,
+	opacityfill=0,
 	pad at break*=1mm,
-	opacityfill=0,
-	before skip=-\baselineskip,
-	title=\prompt{outcolor}{\theNBin}{\hspace{5.5pt}},
-	fonttitle=\linespread{1}\small,
-	attach title to upper,
-	after={\par\noindent},
+	phantom=\label{out:\theNBin},
+	detach title,
+	overlay unbroken and first={%
+		\node[anchor=north] at (frame.north west) {\tcbtitle};
+	},
+	title=\prompt{outcolor}{\theNBin},
+	listing file={#1},
+	listing only,
+	minted options app={
+		firstline=#2,
+		lastline=#3,
+		#4,
+	},
 }
 
-\newtcolorbox{NBoutM}{
+\newtcolorbox{NBoutputM}{
 	breakable,
 	enhanced,
-	boxrule=.5pt,
-	size=fbox, 
-	pad at break*=1mm, 
-	top=2pt,
+	size=fbox,
 	opacityfill=0,
-	before skip=-\baselineskip,
-	title=\prompt{outcolor}{\theNBin}{\hspace{5.5pt}},
-	fonttitle=\linespread{1}\small,
-	after={\par\noindent},
-}
-
-\lstdefinestyle{SageNotebook}{
-	language=Python,
-	upquote= true,
-	tabsize=4,
-	basicstyle=\linespread{1}\small\ttfamily,
-	basewidth=.5em,
-	aboveskip=0pt
-}
-
-\lstdefinestyle{SageNotebookIn}{
-	style=SageNotebook,
-	upquote= true,
-	tabsize=4,
-	keywordstyle=\bfseries\color{keywordcol},
-	commentstyle=\color{commentcol},
-	stringstyle=\color{stringcol},
-	basicstyle=\linespread{1}\small\ttfamily,
-	basewidth=.5em,
-	belowskip=-2pt,
-	showstringspaces=false,
-	breaklines=true,
-	sensitive=true,
-	literate=%
-	{+}{{{\color{gray}+}}}1
-	{-}{{{\color{gray}-}}}1
-	{=}{{{\color{gray}=}}}1
-	{*}{{{\color{gray}*}}}1
-	{/}{{{\color{gray}/}}}1
-}
-
-\lstdefinestyle{SageNotebookOut}{
-	style=SageNotebook,
-	aboveskip=0pt,
-    belowskip=0pt,
+	pad at break*=1mm,
+	phantom=\label{out:\theNBin},
+	detach title,
+	overlay unbroken and first={%
+		\node[anchor=north] at (frame.north west) {\tcbtitle};
+	},
+	title=\prompt{outcolor}{\theNBin},
 }
 
 \definecolor{dbluecolor}{rgb}{0.01,0.02,0.7}

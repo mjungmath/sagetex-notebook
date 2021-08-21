@@ -15,6 +15,20 @@ sage: X.<x,y> = M.chart()
 sage: f = M.scalar_field(x^2, name='f')
 sage: f.display()
 \end{sagenotebook}
-\lipsum[1]
+\par
+\begin{sagenotebook}
+sage: TM = M.tangent_bundle()
+sage: TM
+\end{sagenotebook}
+\begin{sagenotebook}
+sage: from sage.categories.manifolds import Manifolds
+sage: M in Manifolds(RR)
+\end{sagenotebook}
+\lipsum
+\begin{sagenotebook}
+sage: n = 4
+sage: m = 5
+\end{sagenotebook}
+\lipsum
 
 \end{document}

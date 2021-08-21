@@ -284,9 +284,10 @@ SAGE_ROOT/local/share/doc/sagetex.""")
           scmd_fn = '"{}"'.format(scmd_fn)
 
       splitup = self.split_sage_cmds(s)
-      tex_strs = [r'\begin{NBin}']
-      lstinput = r'\lstinputlisting[firstline={0},lastline={1},firstnumber={2},style=SageNotebookIn{escape}]{{{3}}}'
-      lstoutput = r'\lstinputlisting[firstline={0},lastline={1},firstnumber={2},style=SageNotebookOut{escape}]{{{3}}}'
+      tex_strs = []
+      lstinput = r'\NBinput{{{0}}}{{{1}}}{{{2}}}{{{3}}}'
+      lstoutput = r'\NBoutput{{{0}}}{{{1}}}{{{2}}}'
+      offset = 0
       for i in range(len(splitup)):
           output = splitup[i][2]
           begin, end = self.savenbcmd(strip_common_leading_spaces(output.strip('\n')))
@@ -294,24 +295,21 @@ SAGE_ROOT/local/share/doc/sagetex.""")
               escapeoption = ',escapeinside={\\#@}{\\^^M}'
           else:
               escapeoption = ''
-          tex_strs.append(lstinput.format(begin, end, begin - 2, scmd_fn, escape=escapeoption))
           result = None
           try:
               result = eval(preparse(splitup[i][2]), globals, locals)
-          except SyntaxError:
-              exec(preparse(output), globals, locals)
-          if result:
+              tex_strs.append(lstinput.format(scmd_fn, begin - offset, end, escapeoption))
+              offset = 0
               if text_output:
                   begin, end = self.savenbcmd(str(result))
-                  tex_strs.append(r'\end{NBin}')
-                  tex_strs.append(r'\begin{NBout}')
-                  tex_strs.append(lstoutput.format(begin, end, begin - 2, scmd_fn, escape=''))
-                  tex_strs.append(r'\end{NBout}')
+                  tex_strs.append(lstoutput.format(scmd_fn, begin, end))
               else:
-                  tex_strs.append(r'\end{NBin}')
-                  tex_strs.append(r'\begin{NBoutM}')
+                  tex_strs.append(r'\begin{NBoutputM}')
                   tex_strs.append(r'$' + latex(result) + r'$')
-                  tex_strs.append(r'\end{NBoutM}')
-          elif i == len(splitup) - 1:
-              tex_strs.append(r'\end{NBin}')
+                  tex_strs.append(r'\end{NBoutputM}')
+          except SyntaxError:
+              exec(preparse(output), globals, locals)
+              offset += end - begin + 1
+      if result is None:
+          tex_strs.append(lstinput.format(scmd_fn, begin - offset + 1, end, escapeoption))
       self.inline(counter, '\n'.join(tex_strs), labelname='sagenotebook')

@@ -4,4 +4,4 @@ Nice-looking Jupyter notebook style for [sagetex](https://github.com/sagemath/sa
 
 ## Disclaimer
 
-This is mostly hard-coded, and I do not intend to update this repo. That is expect unstabilities.
+This is mostly hard-coded, and I do not intend to update this repo. Expect unstabilities.
